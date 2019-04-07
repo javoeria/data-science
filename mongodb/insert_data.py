@@ -2,8 +2,9 @@ import os
 import sys
 import dotenv
 import pymongo
-import twitter
+from twitter import *
 from pymongo import MongoClient
+from faker import Faker
 
 dotenv.load_dotenv()
 
@@ -15,14 +16,22 @@ OAUTH_TOKEN_SECRET = os.getenv('OAUTH_TOKEN_SECRET')
 if len(sys.argv)==1:
   sys.exit('Argument not found')
 
-auth = twitter.oauth.OAuth(OAUTH_TOKEN, OAUTH_TOKEN_SECRET, CONSUMER_KEY, CONSUMER_SECRET)
-twitter_api = twitter.Twitter(auth=auth)
-
 connection = MongoClient('localhost', 27017)
-db = connection.twitter
+db = connection.test
 collection = db.tweets
+collection.create_index([('text', pymongo.TEXT)])
+collection.create_index([('geo', pymongo.GEOSPHERE)])
 
-search_results = twitter_api.search.tweets(count=100, q=str(sys.argv[1]))
-tweets = search_results['statuses']
-collection.insert_many(tweets)
-print(len(tweets))
+auth = OAuth(OAUTH_TOKEN, OAUTH_TOKEN_SECRET, CONSUMER_KEY, CONSUMER_SECRET)
+twitter = Twitter(auth = auth)
+fake = Faker()
+total = 0
+
+while total < int(sys.argv[1]):
+  word = fake.word()
+  query = twitter.search.tweets(result_type = 'popular', count = 100, q = word)
+  tweets = query['statuses']
+  if len(tweets) > 0:
+    collection.insert_many(tweets)
+    total += len(tweets)
+    print(word, total)
