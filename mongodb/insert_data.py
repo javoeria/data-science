@@ -2,6 +2,7 @@ import os
 import sys
 import dotenv
 import pymongo
+import subprocess
 from twitter import *
 from pymongo import MongoClient
 from faker import Faker
@@ -16,9 +17,12 @@ OAUTH_TOKEN_SECRET = os.getenv('OAUTH_TOKEN_SECRET')
 if len(sys.argv)==1:
   sys.exit('Argument not found')
 
+subprocess.run('mongorestore -d test -c tweets ../tweets.bson')
+
 connection = MongoClient('localhost', 27017)
 db = connection.test
 collection = db.tweets
+collection.drop_index('text_text')
 collection.create_index([('text', pymongo.TEXT)])
 collection.create_index([('geo', pymongo.GEOSPHERE)])
 
