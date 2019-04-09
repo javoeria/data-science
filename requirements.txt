@@ -1,0 +1,7 @@
+python-dotenv
+pymongo
+folium
+pandas
+matplotlib
+twitter
+Faker
