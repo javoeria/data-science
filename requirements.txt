@@ -5,3 +5,4 @@ pandas
 matplotlib
 twitter
 Faker
+cassandra-driver
