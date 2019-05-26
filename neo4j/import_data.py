@@ -56,13 +56,13 @@ for item in collection.find():
 
   loc = item['user']['location']
   location = Node('Location', name=loc)
-  if loc not in locations_unique:
+  if loc != '' and loc not in locations_unique:
     locations_unique.append(loc)
     tx.create(location)
 
   rel_has = Relationship(user, 'HAS', tweet)
-  tx.merge(user, 'User', 'username')
-  tx.merge(tweet, 'Tweet', 'text')
+  tx.merge(user, 'User', 'id_str')
+  tx.merge(tweet, 'Tweet', 'id_str')
   tx.merge(rel_has)
 
   rel_from = Relationship(tweet, 'FROM', source)
@@ -73,9 +73,10 @@ for item in collection.find():
   tx.merge(language, 'Language', 'name')
   tx.merge(rel_in)
 
-  rel_lives = Relationship(user, 'LIVES', location)
-  tx.merge(location, 'Location', 'name')
-  tx.merge(rel_lives)
+  if loc != '':
+    rel_lives = Relationship(tweet, 'LIVES', location)
+    tx.merge(location, 'Location', 'name')
+    tx.merge(rel_lives)
 
 tx.commit()
 
