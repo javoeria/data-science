@@ -6,3 +6,4 @@ matplotlib
 twitter
 Faker
 cassandra-driver
+py2neo
